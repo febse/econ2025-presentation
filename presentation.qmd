@@ -94,7 +94,7 @@ $$
 where $e_i$ are zero-mean, uncorrelated random terms with constant variance $\sigma^2$.
 
 - The model is estimated using the method of least squares.
-- The predictors are centered by subtracting their mean to improve the interpretability of the coefficients.
+- The predictors are centered by subtracting their mean to improve the interpretability of the intercept.
 - The sales price is divided by 1000 to avoid large coefficients.
 
 ## Results
