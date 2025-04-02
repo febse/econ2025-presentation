@@ -1,0 +1,176 @@
+---
+title: "House Value Prediction Using the Ames Assessor’s Office Data"
+subtitle: "A Case Study Using Linear Regression Analysis in R"
+author: "Boyko Amarov"
+format: pptx
+---
+
+```{r setup, echo=FALSE, warning=FALSE}
+if (!requireNamespace("tidyverse", quietly = TRUE)) {
+  install.packages("tidyverse")
+}
+
+
+if (!requireNamespace("GGally", quietly = TRUE)) {
+  install.packages("GGally")
+}
+
+if (!requireNamespace("rmarkdown", quietly = TRUE)) {
+  install.packages("rmarkdown")
+}
+
+if (!requireNamespace("broom", quietly = TRUE)) {
+  install.packages("broom")}
+# Load thelibrarie
+
+
+library(tidyverse)
+library(readr)
+library(readxl)
+library(GGally)
+library(broom)
+
+# You should download _your_ data in this folder and change the name of the file in the code below
+
+dt <- read_csv("AmesHousing.csv")
+
+# Example reading from an Excel file
+
+dt <- read_excel("AmesHousing.xlsx")
+
+# Rename the variables that are used in the analysis to avoid names with spaces and special characters
+
+dt <- dt %>% 
+    rename(
+      # The syntax of rename is: new_name = old_name, if the old name has spaces or special characters, put it in backticks
+        LotArea = `Lot Area`,
+        YearBuilt = `Year Built`,
+        LivingArea = `Gr Liv Area`
+    )
+```
+
+## Introduction
+
+-   The Ames Assessor’s Office dataset provides detailed information about residential properties in Ames, Iowa between 2006 and 2010. <https://jse.amstat.org/v19n3/decock/DataDocumentation.txt>
+-   The dataset contains 2930 observations and 82 variables.
+-   In this presentation we explore a linear regression model for the prediction of house sales prices based on various features of the properties.
+
+## Research Question
+
+What is the association between house sales prices and the following features of the properties?
+
+-   Living area (in square feet)
+-   Lot area (in square feet)
+-   Year built (in years)
+
+
+## The Data
+
+```{r}
+# Create a scatterplot matrix to visualize the relationships between the variables of interest
+
+fig <- dt %>% 
+  select(LivingArea, LotArea, YearBuilt, SalePrice) %>% 
+  ggpairs(
+    title = "Scatterplot Matrix of House Value and Features",
+    lower = list(continuous = wrap("points", alpha = 0.2)),
+    upper = list(continuous = wrap("cor", size = 5))
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+# Save the plot as a PNG file
+
+ggsave("scatterplot_matrix.png", plot = fig, width = 10, height = 8)
+
+fig
+```
+
+## The Model
+
+$$
+\begin{align*}
+\text{Price}_i & = \beta_0 + \beta_1 \text{LivingArea}_i + \beta_2 \text{LotArea}_i + \beta_3\text{YearBuilt}_i + e_i
+\end{align*}
+$$
+
+where $e_i$ are zero-mean, uncorrelated random terms with constant variance $\sigma^2$.
+
+- The model is estimated using the method of least squares.
+- The predictors are centered by subtracting their mean to improve the interpretability of the coefficients.
+- The sales price is divided by 1000 to avoid large coefficients.
+
+## Results
+
+```{r lm-fit}
+
+dt <- dt %>%
+  mutate(
+    SalesPriceC = SalePrice / 1000,
+    LotAreaC = LotArea - mean(LotArea),
+    YearBuiltC = YearBuilt - mean(YearBuilt),
+    LivingAreaC = LivingArea - mean(LivingArea)
+  )
+
+fit <- lm(SalesPriceC ~ LivingAreaC + LotAreaC + YearBuiltC, data = dt)
+
+summary(fit) %>% 
+  tidy() %>% 
+  select(term, estimate, std.error, p.value) %>%
+  knitr::kable(
+    col.names = c("Variable", "Estimate", "Std. Error", "p value"),
+    digits = 3
+  )
+```
+
+R squared: `r summary(fit)$r.squared`
+
+## Goodness of Fit
+
+```{r goodness-of-fit}
+# Plot the predicted vs actual values
+
+# If the model fits the data well, the points should be close to the 45-degree line and should not show any systematic pattern other 
+# than random scatter around the line.
+
+# For this example the plot shows a poor fit for the higher priced houses as they are systematically under-predicted by the model.
+# A solution could be to use a log transformation of the dependent variable or to include non-linear terms in the model.
+
+fig <- 
+  dt %>%
+  mutate(
+    predicted_values = predict(fit)
+  ) %>%
+  ggplot(aes(x = predicted_values, y = SalesPriceC)) +
+  geom_point(alpha = 0.2) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  labs(
+    title = "Actual vs. Predicted Sales Prices",
+    x = "Predicted Sales Price (in thousands)",
+    y = "Actual Sales Price (in thousands)"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+
+ggsave("predicted_vs_actual.png", plot = fig, width = 10, height = 8)
+
+fig
+```
+
+## Interpretation (I)
+
+- The estimated sales price for a house with an average year built, average lot area, and average living area is 180,796 USD.
+- Newer houses tended to be more expensive. A difference of 10 years is associated with about 10,990 USD price difference (for equal lot area and living area).
+- As expected: larger houses tend to be more expensive. A difference of 100 square feet is associated with about 9,200 USD higher price (for equal lot area and year built).
+
+## Interpretation (II)
+
+- Houses with larger lot areas tend to be more expensive. 
+- All coefficients are statistically significant at the 0.05 level.
+
+## Diagnostic Plots
+
+Thank you for your attention!
