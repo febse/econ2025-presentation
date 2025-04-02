@@ -10,7 +10,6 @@ if (!requireNamespace("tidyverse", quietly = TRUE)) {
   install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 }
 
-
 if (!requireNamespace("GGally", quietly = TRUE)) {
   install.packages("GGally", repos = "http://cran.us.r-project.org")
 }
@@ -75,7 +74,6 @@ fig <- dt %>%
     lower = list(continuous = wrap("points", alpha = 0.2)),
     upper = list(continuous = wrap("cor", size = 5))
   ) +
-  theme_bw() +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
@@ -134,6 +132,18 @@ run the code below to get the summary of the model and paste it in your PowerPoi
 summary(fit)
 ```
 
+## Interpretation (I)
+
+- The estimated sales price for a house with an average year built, average lot area, and average living area is 180,796 USD.
+- Newer houses tended to be more expensive. A difference of 10 years is associated with about 10,990 USD price difference (for equal lot area and living area).
+- As expected: larger houses tend to be more expensive. A difference of 100 square feet is associated with about 9,200 USD higher price (for equal lot area and year built).
+
+## Interpretation (II)
+
+- Houses with larger lot areas tend to be more expensive. 
+- All coefficients are statistically significant at the 0.05 level.
+
+
 ## Goodness of Fit
 
 ```{r goodness-of-fit}
@@ -158,7 +168,6 @@ fig <-
     x = "Predicted Sales Price (in thousands)",
     y = "Actual Sales Price (in thousands)"
   ) +
-  theme_bw() +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
@@ -168,17 +177,7 @@ ggsave("predicted_vs_actual.png", plot = fig, width = 10, height = 8)
 fig
 ```
 
-## Interpretation (I)
 
-- The estimated sales price for a house with an average year built, average lot area, and average living area is 180,796 USD.
-- Newer houses tended to be more expensive. A difference of 10 years is associated with about 10,990 USD price difference (for equal lot area and living area).
-- As expected: larger houses tend to be more expensive. A difference of 100 square feet is associated with about 9,200 USD higher price (for equal lot area and year built).
-
-## Interpretation (II)
-
-- Houses with larger lot areas tend to be more expensive. 
-- All coefficients are statistically significant at the 0.05 level.
-
-## Diagnostic Plots
+## Last Slide
 
 Thank you for your attention!
