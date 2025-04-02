@@ -33,9 +33,9 @@ library(broom)
 
 dt <- read_csv("AmesHousing.csv")
 
-# Example reading from an Excel file
+# Example reading from an Excel file (to run the code you should remove the # character from the beginning of the line below)
 
-dt <- read_excel("AmesHousing.xlsx")
+# dt <- read_excel("AmesHousing.xlsx")
 
 # Rename the variables that are used in the analysis to avoid names with spaces and special characters
 
