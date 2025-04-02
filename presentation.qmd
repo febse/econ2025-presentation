@@ -1,6 +1,5 @@
 ---
-title: "House Value Prediction Using the Ames Assessor’s Office Data"
-subtitle: "A Case Study Using Linear Regression Analysis in R"
+title: "House Sales Price Prediction Using the Ames Assessor’s Office Data"
 author: "Boyko Amarov"
 format: pptx
 ---
